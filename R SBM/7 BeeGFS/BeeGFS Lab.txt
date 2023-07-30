@@ -1,0 +1,100 @@
+ Create 2 machine
+ server-1GB 2Core add one hardrive of 20 GB Nat Mode
+ Client-1Gb 2Core Nat Mode
+
+    2  lsblk
+    3  ip a
+    4  ifup ens33
+    5  yum update -y
+    6  hostnamectl set-hostname server
+    7  systemctl status firewalld
+    8  systemctl stop firewalld
+    9  init 6
+   10  ip a
+   11  vi /etc/selinux/config
+   12  systemctl status firewalld
+   13  systemctl stop firewalld
+   14  systemctl disable firewalld
+   15  init 6
+   16  ls
+   17  lsblk
+   19  vi /etc/hosts
+   20  lsblk
+   21  fdsik /dev/sdb
+   22  ip a
+   23  fdisk /dev/sdb
+   24  mkfs.xfs /dev/sdb1
+   25  mount /dev/sdb1 /mnt/disk
+   26  mount /dev/sdb1 /mnt/disk1
+   27  mkdir /mnt/disk
+   28  mount /dev/sdb1 /mnt/disk
+   29  lsblk
+  
+   43  yum install wget -y
+   48   wget --no-check-certificate -O /etc/yum.repos.d/beegfs.repo https://www.beegfs.io/release/beegfs_7.2/dists/beegfs-rhel7.repo
+   50  cat /etc/yum.repos.d/beegfs.repo
+   51  yum install beegfs-utils beegfs-client beegfs-meta beegfs-storage beegfs-mgmtd
+   52  mkdir -p /mnt/beegfs/meta && mkdir -p /mnt/beegfs/storage && mkdir -p /mnt/beegfs/beegfs_mgmtd
+   53  df -h
+   54  /opt/beegfs/sbin/beegfs-setup-mgmtd -p /mnt/beegfs/beegfs_mgmtd
+   55  cat  /etc/beegfs/beegfs-mgmtd.conf
+   56  vi /etc/beegfs/beegfs-mgmtd.conf
+   
+   58  vi /etc/beegfs/beegfs-client.conf
+       
+   #
+   # --- Section 1.1: [Basic Settings] ---
+   #
+
+   sysMgmtdHost                  =192.168.129.226    (server IP)
+
+
+       
+   59  systemctl start beegfs-mgmtd &&     systemctl enable beegfs-mgmtd &&     systemctl status beegfs-mgmtd
+   60  /opt/beegfs/sbin/beegfs-setup-meta -p /mnt/beegfs/meta -s 1 -m 192.168.129.226
+   61  vi /etc/beegfs/beegfs-meta.conf
+   62  systemctl start beegfs-meta && systemctl enable beegfs-meta && systemctl status beegfs-meta
+   63  /opt/beegfs/sbin/beegfs-setup-storage -p /mnt/beegfs/storage -s 2 -i 1 -m 192.168.129.226
+   64  systemctl start beegfs-storage && systemctl enable beegfs-storage && systemctl status beegfs-storage
+
+
+
+
+
+
+
+
+On Client
+
+
+
+    1  lsblk
+    2  ip a
+    3  ifup ens33
+    4  yum update -y
+    5  hostnamectl set-hostname client
+    6  ip a
+    7  vi /etc/selinux/config
+    8  systemctl stop firewalld
+    9  systemctl disable firewalld
+   10  init 6
+   11  ls
+   12  lsblk
+   13  ip a
+   14  yum update -y
+   15  vi /etc/hosts
+   16  ls
+   17  lsblk
+   18  ip a
+   19  yum install -y kernel-devel beegfs-utils beegfs-client beegfs-mgmtd
+   20  yum install wget -y
+   21   wget --no-check-certificate -O /etc/yum.repos.d/beegfs.repo https://www.beegfs.io/release/beegfs_7.2/dists/beegfs-rhel7.repo
+   22  yum install -y kernel-devel beegfs-utils beegfs-client beegfs-mgmtd
+   23  /opt/beegfs/sbin/beegfs-setup-client -m 192.168.129.226      (server IP)
+   24  vi /etc/beegfs/beegfs-mounts.conf
+   25  cd /mnt/beegfs/
+   26  ls
+   27   systemctl start beegfs-client
+   28  journalctl -xe
+   29   systemctl start beegfs-client
+

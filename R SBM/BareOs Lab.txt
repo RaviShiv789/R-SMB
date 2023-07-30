@@ -1,0 +1,58 @@
+Create a Cent-OS Machine version 8    
+Centos -8 Bare OS backup Server CPU-2 Memory 2 GBDisk 20GB
+
+
+
+
+    1  yum update -y
+    2  ip a
+    3  systemctl stop firewalld
+    4  systemctl disable firewalld
+    5  vi /etc/selinux/config
+    6  getenforce 0
+    7  dnf install @postgresql:13
+    8  /usr/bin/postgresql-setup --initdb
+    9  cd /var/lib/pgsql/data/
+   11  vi pg_hba.conf
+
+       #Add line in last
+       local   all             all  trust
+       host    all             all             127.0.0.1/32  trust
+
+
+
+   12  systemctl start postgresql
+   13  cd
+   14  yum install wget
+   15  wget https://download.bareos.org/current/EL_8/add_bareos_repositories.sh
+   16  yum install epel-release
+   18  systemctl stop firewalld
+       setenforce 0
+
+   21  cd /var/lib/pgsql/data/
+   23  cd
+   24  chmod 755 add_bareos_repositories.sh
+   25  ./add_bareos_repositories.sh
+   26  yum install bareos
+   27  su postgres -c /usr/lib/bareos/scripts/create_bareos_database
+   28  su postgres -c /usr/lib/bareos/scripts/make_bareos_tables
+   29  su postgres -c /usr/lib/bareos/scripts/grant_bareos_privileges
+   30  systemctl enable bareos-dir && systemctl start bareos-dir && systemctl status bareos-dir
+   31  systemctl enable bareos-sd && systemctl start bareos-sd && systemctl status bareos-sd
+   32  systemctl enable bareos-fd && systemctl start bareos-fd && systemctl status bareos-fd
+   33  dnf install bareos-webui
+   34  cd /etc/bareos/bareos-dir.d/console/
+   35  mv admin.conf.example admin.conf
+   36  systemctl restart bareos-dir
+   37  systemctl start httpd
+   38  ip a
+   39  history
+
+
+
+ Go to chrome and search http://192.168.154.158/bareos-webui/     (server ip)
+
+
+/etc/bareos/bareos-dir.d/fileset
+change backup parameter
+systemctl restart bareos-dir
